@@ -51,20 +51,22 @@ defmodule LiveGameWeb.Home do
         %{assigns: assigns} = socket
       ) do
     Logger.info(
-      "Presence diff (#{socket.assigns.user_id}): \njoins: #{inspect(joins)}, \nleaves: #{
+      "Presence diff (#{assigns.user_id}): \njoins: #{inspect(joins)}, \nleaves: #{
         inspect(leaves)
       } "
     )
 
     {:noreply,
      assign(socket, %{
+       state: assigns.state,
        player_count: Presence.count_users(@topic),
        users: Presence.list_users(@topic)
      })}
   end
 
   def handle_info(%{event: "update:state", payload: state}, socket) do
-    {:noreply, assign(socket, :state, socket.assigns.state)}
+    Logger.info("Event (#{socket.assigns.user_id}): update:state, payload: #{inspect(state)}")
+    {:noreply, assign(socket, state: state)}
   end
 
   def handle_event("new_player", payload, %{assigns: %{state: state}} = socket) do
@@ -75,12 +77,14 @@ defmodule LiveGameWeb.Home do
       Logger.info("Player added: #{inspect(player.changes)}")
 
       players = Map.put(state.players, player.changes.id, player.changes)
+      state = %{state | players: players}
+      Endpoint.broadcast_from(self(), @topic, "update:state", state)
 
       {:noreply,
        assign(socket,
          player: player.changes,
          changeset: player,
-         state: %{state | players: players}
+         state: state
        )}
     else
       Logger.info("Player validation failed: #{inspect(player.errors)}")
