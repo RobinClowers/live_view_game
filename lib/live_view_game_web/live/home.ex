@@ -9,6 +9,11 @@ defmodule LiveGameWeb.Home do
   @initial_state %{
     players: []
   }
+
+  def render(assigns) do
+    Phoenix.View.render(LiveGameWeb.HomeView, "index.html", assigns)
+  end
+
   def mount(_params, session, socket) do
     Endpoint.subscribe(@topic)
 
