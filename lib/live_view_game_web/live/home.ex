@@ -6,11 +6,12 @@ defmodule LiveGameWeb.Home do
 
   @topic "arena"
 
+  @initial_state %{
+    players: []
+  }
   def mount(_params, session, socket) do
-    # Subscribe to the topic
     Endpoint.subscribe(@topic)
 
-    # Track changes to the topic
     Presence.track(
       self(),
       @topic,
@@ -20,31 +21,43 @@ defmodule LiveGameWeb.Home do
       }
     )
 
-    initial_count = Presence.list(@topic) |> map_size
-
     {:ok,
      assign(socket, %{
-       player_count: initial_count,
-       session_id: session["id"],
-       users: get_user_names()
+       state: @initial_state,
+       player_count: Presence.count_users(@topic),
+       user_id: session["id"],
+       users: Presence.list_users(@topic)
      })}
   end
 
-  def get_user_names do
-    Presence.list(@topic)
-    |> Enum.map(fn {_user_id, data} ->
-      data[:metas] |> List.first()
-    end)
-  end
-
+  # Example paylod
+  # %{
+  #   joins: %{"123" => %{metas: [%{status: "away", phx_ref: ...}]},
+  #   leaves: %{"456" => %{metas: [%{status: "online", phx_ref: ...}]
+  # },
   def handle_info(
         %{event: "presence_diff", payload: %{joins: joins, leaves: leaves}},
-        %{assigns: %{player_count: count}} = socket
+        %{assigns: assigns} = socket
       ) do
-    Logger.info("Presence diff: #{joins} joins, #{leaves} leaves")
+    Logger.info(
+      "Presence diff (#{socket.assigns.user_id}): \njoins: #{inspect(joins)}, \nleaves: #{
+        inspect(leaves)
+      } "
+    )
 
-    player_count = count + map_size(joins) - map_size(leaves)
+    {:noreply,
+     assign(socket, %{
+       player_count: Presence.count_users(@topic),
+       users: Presence.list_users(@topic)
+     })}
+  end
 
-    {:noreply, assign(socket, player_count: player_count, users: get_user_names())}
+  def handle_event("go", payload, socket) do
+    Logger.info("Command: go, payload: #{inspect(payload)}")
+    {:noreply, assign(socket, :state, socket.assigns.state)}
+  end
+
+  def handle_info(%{event: "update:state", payload: state}, socket) do
+    {:noreply, assign(socket, :state, socket.assigns.state)}
   end
 end

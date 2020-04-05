@@ -1,10 +1,14 @@
-<h1>Welcome to the areana</h1>
-<p>There are currently <%= @player_count %> players.
-<p>You are player <%= @session_id %>
+<main>
+  <h1>Welcome to the areana</h1>
+  <p>There are currently <%= @player_count %> players.
+  <p>You are player <%= @user_id %>
 
- <div>
-   <h5>Current users</h5>
+  <div>
+    <h5>Current users</h5>
     <%= for user <- @users do %>
-      <div><%= user.user_id %></div>
+      <div><%= user.phx_ref %></div>
     <% end %>
   </div>
+
+  <%= Phoenix.HTML.Tag.content_tag(:button, 'Go!', class: "btn", "phx-click": "go") %>
+</main>

@@ -1,5 +1,6 @@
 defmodule LiveGameWeb.Router do
   use LiveGameWeb, :router
+  import Phoenix.LiveView.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -8,6 +9,7 @@ defmodule LiveGameWeb.Router do
     plug LiveGameWeb.SessionPlug
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :put_root_layout, {LiveGameWeb.LayoutView, :root}
   end
 
   pipeline :api do
