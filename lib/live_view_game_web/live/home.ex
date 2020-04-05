@@ -37,7 +37,7 @@ defmodule LiveGameWeb.Home do
      })}
   end
 
-  # Example paylod
+  # Example payload
   # %{
   #   joins: %{"123" => %{metas: [%{status: "away", phx_ref: ...}]},
   #   leaves: %{"456" => %{metas: [%{status: "online", phx_ref: ...}]
