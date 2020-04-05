@@ -56,6 +56,8 @@ defmodule LiveGameWeb.Home do
       } "
     )
 
+    Endpoint.broadcast_from(self(), @topic, "update:state", assigns.state)
+
     {:noreply,
      assign(socket, %{
        state: assigns.state,
@@ -66,7 +68,7 @@ defmodule LiveGameWeb.Home do
 
   def handle_info(%{event: "update:state", payload: state}, socket) do
     Logger.info("Event (#{socket.assigns.user_id}): update:state, payload: #{inspect(state)}")
-    {:noreply, assign(socket, state: state)}
+    {:noreply, assign(socket, player: state.players[socket.assigns.user_id], state: state)}
   end
 
   def handle_event("new_player", payload, %{assigns: %{state: state}} = socket) do
