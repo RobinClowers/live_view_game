@@ -1,6 +1,6 @@
 <main>
   <h1>Welcome to the areana</h1>
-  <p>There are currently <%= @player_count %> players.
+  <p>There are currently <%= Enum.count(@state.players) %> players.
   <p>
     You are
     <%= if @player do %>
