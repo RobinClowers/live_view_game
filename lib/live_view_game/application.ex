@@ -11,7 +11,9 @@ defmodule LiveGame.Application do
       # Start the endpoint when the application starts
       LiveGameWeb.Endpoint,
       # Start Phoenix Presence
-      LiveGame.Presence
+      LiveGame.Presence,
+      # Start the game server
+      {LiveGame.Game, LiveGame.Game.initial_state()}
       # Starts a worker by calling: LiveGame.Worker.start_link(arg)
       # {LiveGame.Worker, arg},
     ]

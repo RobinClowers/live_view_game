@@ -8,8 +8,8 @@ defmodule Player do
     field(:name, :string)
   end
 
-  def new(player, params \\ %{}) do
-    player
+  def new(params \\ %{}) do
+    %Player{}
     |> cast(params, [:id, :name])
     |> validate_required([:id, :name])
   end

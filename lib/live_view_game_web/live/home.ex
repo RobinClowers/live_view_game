@@ -2,20 +2,13 @@ defmodule LiveGameWeb.Home do
   use Phoenix.LiveView
   alias LiveGameWeb.Endpoint
   alias LiveGame.Presence
+  alias LiveGame.Game
   require Logger
 
   @topic "arena"
 
-  @initial_state %{
-    players: %{}
-  }
-
   def render(assigns) do
-    changeset =
-      %Player{}
-      |> Player.new()
-
-    assigns = Map.put(assigns, :player_changeset, changeset)
+    assigns = Map.put(assigns, :player_changeset, Player.new())
     Phoenix.View.render(LiveGameWeb.HomeView, "index.html", assigns)
   end
 
@@ -31,10 +24,13 @@ defmodule LiveGameWeb.Home do
       }
     )
 
+    {:ok, state} = LiveGame.Game.get_state()
+    Logger.info("Loading game state: #{inspect(state)}")
+
     {:ok,
      assign(socket, %{
-       state: @initial_state,
-       player: nil,
+       state: state,
+       player: state.players[session["id"]],
        player_count: Presence.count_users(@topic),
        user_id: session["id"],
        users: Presence.list_users(@topic)
@@ -56,8 +52,6 @@ defmodule LiveGameWeb.Home do
       } "
     )
 
-    Endpoint.broadcast_from(self(), @topic, "update:state", assigns.state)
-
     {:noreply,
      assign(socket, %{
        state: assigns.state,
@@ -68,18 +62,19 @@ defmodule LiveGameWeb.Home do
 
   def handle_info(%{event: "update:state", payload: state}, socket) do
     Logger.info("Event (#{socket.assigns.user_id}): update:state, payload: #{inspect(state)}")
-    {:noreply, assign(socket, player: state.players[socket.assigns.user_id], state: state)}
+    {:noreply, assign(socket, state: state)}
   end
 
   def handle_event("new_player", payload, %{assigns: %{state: state}} = socket) do
     Logger.info("Command: new_player, payload: #{inspect(payload)}")
-    player = Player.new(%Player{}, payload["player"])
+    player = Player.new(payload["player"])
 
     if player.valid? do
       Logger.info("Player added: #{inspect(player.changes)}")
 
       players = Map.put(state.players, player.changes.id, player.changes)
       state = %{state | players: players}
+      {:ok, state} = Game.update_state(state)
       Endpoint.broadcast_from(self(), @topic, "update:state", state)
 
       {:noreply,
