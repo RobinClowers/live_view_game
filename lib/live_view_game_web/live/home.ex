@@ -72,9 +72,7 @@ defmodule LiveGameWeb.Home do
     if player.valid? do
       Logger.info("Player added: #{inspect(player.changes)}")
 
-      players = Map.put(state.players, player.changes.id, player.changes)
-      state = %{state | players: players}
-      {:ok, state} = Game.update_state(state)
+      {:ok, state} = Game.add_player(player.changes)
       Endpoint.broadcast_from(self(), @topic, "update:state", state)
 
       {:noreply,

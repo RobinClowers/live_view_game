@@ -26,6 +26,10 @@ defmodule LiveGame.Game do
     GenServer.call(CurrentGame, {"update_state", state})
   end
 
+  def add_player(player) do
+    GenServer.call(CurrentGame, {"add_player", player})
+  end
+
   def handle_call("get_state", _from, state) do
     Logger.info("Event get_state: #{inspect(state)}")
     {:reply, {:ok, state}, state}
@@ -34,5 +38,13 @@ defmodule LiveGame.Game do
   def handle_call({"update_state", new_state}, _from, state) do
     Logger.info("Event update_state: #{inspect(new_state)}")
     {:reply, {:ok, new_state}, new_state}
+  end
+
+  def handle_call({"add_player", player}, _from, state) do
+    Logger.info("Event add_player: #{inspect(player)}")
+    players = Map.put(state.players, player.id, player)
+    state = %{state | players: players}
+    # GenServer.call(CurrentGame, {"update_state", state})
+    {:reply, {:ok, state}, state}
   end
 end
