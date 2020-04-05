@@ -9,7 +9,9 @@ defmodule LiveGame.Application do
     # List all child processes to be supervised
     children = [
       # Start the endpoint when the application starts
-      LiveGameWeb.Endpoint
+      LiveGameWeb.Endpoint,
+      # Start Phoenix Presence
+      LiveGame.Presence
       # Starts a worker by calling: LiveGame.Worker.start_link(arg)
       # {LiveGame.Worker, arg},
     ]

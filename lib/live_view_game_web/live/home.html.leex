@@ -1,1 +1,10 @@
 <h1>Welcome to the areana</h1>
+<p>There are currently <%= @player_count %> players.
+<p>You are player <%= @session_id %>
+
+ <div>
+   <h5>Current users</h5>
+    <%= for user <- @users do %>
+      <div><%= user.user_id %></div>
+    <% end %>
+  </div>
