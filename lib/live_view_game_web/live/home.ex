@@ -7,10 +7,15 @@ defmodule LiveGameWeb.Home do
   @topic "arena"
 
   @initial_state %{
-    players: []
+    players: %{}
   }
 
   def render(assigns) do
+    changeset =
+      %Player{}
+      |> Player.new()
+
+    assigns = Map.put(assigns, :player_changeset, changeset)
     Phoenix.View.render(LiveGameWeb.HomeView, "index.html", assigns)
   end
 
@@ -29,6 +34,7 @@ defmodule LiveGameWeb.Home do
     {:ok,
      assign(socket, %{
        state: @initial_state,
+       player: nil,
        player_count: Presence.count_users(@topic),
        user_id: session["id"],
        users: Presence.list_users(@topic)
@@ -57,12 +63,28 @@ defmodule LiveGameWeb.Home do
      })}
   end
 
-  def handle_event("go", payload, socket) do
-    Logger.info("Command: go, payload: #{inspect(payload)}")
+  def handle_info(%{event: "update:state", payload: state}, socket) do
     {:noreply, assign(socket, :state, socket.assigns.state)}
   end
 
-  def handle_info(%{event: "update:state", payload: state}, socket) do
-    {:noreply, assign(socket, :state, socket.assigns.state)}
+  def handle_event("new_player", payload, %{assigns: %{state: state}} = socket) do
+    Logger.info("Command: new_player, payload: #{inspect(payload)}")
+    player = Player.new(%Player{}, payload["player"])
+
+    if player.valid? do
+      Logger.info("Player added: #{inspect(player.changes)}")
+
+      players = Map.put(state.players, player.changes.id, player.changes)
+
+      {:noreply,
+       assign(socket,
+         player: player.changes,
+         changeset: player,
+         state: %{state | players: players}
+       )}
+    else
+      Logger.info("Player validation failed: #{inspect(player.errors)}")
+      {:noreply, assign(socket, changeset: player)}
+    end
   end
 end

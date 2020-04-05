@@ -1,14 +1,29 @@
 <main>
   <h1>Welcome to the areana</h1>
   <p>There are currently <%= @player_count %> players.
-  <p>You are player <%= @user_id %>
+  <p>
+    You are
+    <%= if @player do %>
+      <strong><%= @player.name %></strong>
+    <% else %>
+      user <%= @user_id %>
+    <% end %>
+  </p>
+
+  <%= unless @player do %>
+  <%= f = form_for @player_changeset, "#", phx_submit: :new_player %>
+    <%= label f, :player, "Enter your name" %>
+    <%= text_input :player, :name, placeholder: "Enter your name" %>
+    <%= hidden_input :player, :id, value: @user_id  %>
+    <%= submit "submit" %>
+  <% end %>
 
   <div>
-    <h5>Current users</h5>
-    <%= for user <- @users do %>
-      <div><%= user.phx_ref %></div>
+    <h5>Current players</h5>
+    <ul>
+    <%= for {_id, player} <- @state.players do %>
+      <li><%= player.name %></li>
     <% end %>
+    <ul>
   </div>
-
-  <%= content_tag(:button, 'Go!', class: "btn", "phx-click": "go") %>
 </main>
