@@ -22,7 +22,12 @@
     <h5>Current players</h5>
     <ul>
     <%= for {_id, player} <- @state.players do %>
-      <li><%= player.name %></li>
+      <li>
+        <%= player.name %>
+        <%= if can_attack?(@state, @user_id, player.id) do %>
+          <button phx-click="attack" phx-value-id="<%=player.id %>">Attack</button>
+        <% end %>
+      </li>
     <% end %>
     <ul>
   </div>

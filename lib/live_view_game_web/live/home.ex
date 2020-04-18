@@ -1,8 +1,11 @@
 defmodule LiveGameWeb.Home do
   use Phoenix.LiveView
   alias LiveGameWeb.Endpoint
+  alias LiveGameWeb.Router
+  alias LiveGameWeb.Battle
   alias LiveGame.Presence
   alias LiveGame.Game
+  alias LiveGameWeb.Router.Helpers, as: Routes
   require Logger
 
   @topic "arena"
@@ -65,6 +68,20 @@ defmodule LiveGameWeb.Home do
     {:noreply, assign(socket, state: state)}
   end
 
+  def handle_info(
+        %{event: "defend", payload: %{attacker_id: attacker_id, defender_id: defender_id}},
+        %{assigns: %{user_id: user_id}} = socket
+      ) do
+    if defender_id == user_id do
+      {:noreply,
+       push_redirect(socket,
+         to: Routes.live_path(socket, Battle, attacker_id: attacker_id, defender_id: defender_id)
+       )}
+    else
+      {:noreply, socket}
+    end
+  end
+
   def handle_event("new_player", payload, %{assigns: %{state: state}} = socket) do
     Logger.info("Command: new_player, payload: #{inspect(payload)}")
     player = Player.new(payload["player"])
@@ -85,5 +102,22 @@ defmodule LiveGameWeb.Home do
       Logger.info("Player validation failed: #{inspect(player.errors)}")
       {:noreply, assign(socket, changeset: player)}
     end
+  end
+
+  def handle_event("attack", %{"id" => defender_id} = payload, %{assigns: assigns} = socket) do
+    Logger.info("Event attack: #{inspect(payload)}")
+    {:ok, state} = Game.attack(assigns.user_id, defender_id)
+    Endpoint.broadcast_from(self(), @topic, "update:state", state)
+
+    Endpoint.broadcast_from(self(), @topic, "defend", %{
+      attacker_id: assigns.user_id,
+      defender_id: defender_id
+    })
+
+    {:noreply,
+     push_redirect(socket,
+       to:
+         Routes.live_path(socket, Battle, attacker_id: assigns.user_id, defender_id: defender_id)
+     )}
   end
 end

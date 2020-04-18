@@ -20,6 +20,7 @@ defmodule LiveGameWeb.Router do
     pipe_through :browser
 
     live "/", Home
+    live "/battle", Battle
   end
 
   # Other scopes may use custom stacks.

@@ -1,0 +1,10 @@
+<main>
+  <h1>Battle!</h1>
+  <div>
+    <%= if @user_id == @attacker.id do %>
+      <h5>You are attacking <%= @defender.name %></h5>
+    <% else %>
+      <h5>You are being attacked by <%= @attacker.name %></h5>
+    <% end %>
+  </div>
+</main>
