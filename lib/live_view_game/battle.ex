@@ -28,7 +28,7 @@ defmodule LiveGame.Battle do
 
   def handle_call({"attack", attacker, defender}, _from, state) do
     Logger.info("Event attack: attacker: {inspect(attacker)}, defender: #{inspect(defender)}")
-    state = damage_player(attacker, defender, 5, state)
+    state = damage_player(attacker, defender, round(5 * :rand.uniform()), state)
 
     {:reply, {:ok, state}, state}
   end
