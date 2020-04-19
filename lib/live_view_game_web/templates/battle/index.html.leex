@@ -1,10 +1,25 @@
 <main>
   <h1>Battle!</h1>
   <div>
-    <%= if @user_id == @attacker.id do %>
-      <h5>You are attacking <%= @defender.name %></h5>
+    <%= if @is_attacker do %>
+      <h5>You are attacking <%= @player.name %></h5>
     <% else %>
-      <h5>You are being attacked by <%= @attacker.name %></h5>
+      <h5>You are being attacked by <%= @opponent.name %></h5>
     <% end %>
+    <p>HP <%= @player.hp %></p>
+    <%= if @winner == :none do %>
+      <button phx-click="attack">Attack</button>
+    <% else %>
+      <%= if @winner == @player do %>
+        <h5>
+          You Won!
+          </h6>
+        <% else %>
+          <h6>
+            You lost!
+          </h6>
+        <% end %>
+        <button phx-click="exit">Leave Battle</button>
+      <% end %>
   </div>
 </main>

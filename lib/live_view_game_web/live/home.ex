@@ -5,6 +5,7 @@ defmodule LiveGameWeb.Home do
   alias LiveGameWeb.Battle
   alias LiveGame.Presence
   alias LiveGame.Game
+  alias LiveGame.Player
   alias LiveGameWeb.Router.Helpers, as: Routes
   require Logger
 
@@ -35,10 +36,11 @@ defmodule LiveGameWeb.Home do
        state: state,
        player: state.players[session["id"]],
        player_count: Presence.count_users(@topic),
-       user_id: session["id"],
-       users: Presence.list_users(@topic)
+       user_id: session["id"]
      })}
   end
+
+  def topic, do: @topic
 
   # Example payload
   # %{
@@ -58,8 +60,7 @@ defmodule LiveGameWeb.Home do
     {:noreply,
      assign(socket, %{
        state: assigns.state,
-       player_count: Presence.count_users(@topic),
-       users: Presence.list_users(@topic)
+       player_count: Presence.count_users(@topic)
      })}
   end
 
@@ -89,7 +90,7 @@ defmodule LiveGameWeb.Home do
     if player.valid? do
       Logger.info("Player added: #{inspect(player.changes)}")
 
-      {:ok, state} = Game.add_player(player.changes)
+      {:ok, state} = Game.add_player(struct(Player, player.changes))
       Endpoint.broadcast_from(self(), @topic, "update:state", state)
 
       {:noreply,
@@ -104,9 +105,9 @@ defmodule LiveGameWeb.Home do
     end
   end
 
-  def handle_event("attack", %{"id" => defender_id} = payload, %{assigns: assigns} = socket) do
-    Logger.info("Event attack: #{inspect(payload)}")
-    {:ok, state} = Game.attack(assigns.user_id, defender_id)
+  def handle_event("start_battle", %{"id" => defender_id} = payload, %{assigns: assigns} = socket) do
+    Logger.info("Event start_battle: #{inspect(payload)}")
+    {:ok, state} = Game.start_battle(assigns.user_id, defender_id)
     Endpoint.broadcast_from(self(), @topic, "update:state", state)
 
     Endpoint.broadcast_from(self(), @topic, "defend", %{
@@ -119,5 +120,13 @@ defmodule LiveGameWeb.Home do
        to:
          Routes.live_path(socket, Battle, attacker_id: assigns.user_id, defender_id: defender_id)
      )}
+  end
+
+  def exit_battle(user_id) do
+    GenServer.cast("exit_battle", user_id)
+  end
+
+  def handle_info("exit_battle", payload, socket) do
+    {:noreply, socket}
   end
 end
