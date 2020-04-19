@@ -11,13 +11,13 @@
       <button phx-click="attack">Attack</button>
     <% else %>
       <%= if @winner == @player do %>
-        <h5>
-          You Won!
-          </h6>
+          <h5>
+            You Won!
+          </h5>
         <% else %>
-          <h6>
+          <h5>
             You lost!
-          </h6>
+          </h5>
         <% end %>
         <button phx-click="exit">Leave Battle</button>
       <% end %>
