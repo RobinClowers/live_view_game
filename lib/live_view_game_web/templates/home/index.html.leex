@@ -35,8 +35,17 @@
     <%= for {_id, player} <- @state.players do %>
       <li>
         <%= player.name %>
-        <%= if @state.players[@user_id] && player.id != @user_id && !player.in_battle do %>
-          <button phx-click="start_battle" phx-value-id="<%=player.id %>">Attack</button>
+        <%= if @state.players[@user_id] do %>
+          <%= if player.id == @user_id do %>
+            (you)
+          <% else %>
+            <%= unless player.in_battle do %>
+              <button phx-click="start_battle" phx-value-id="<%=player.id %>">Attack</button>
+            <% end %>
+          <% end %>
+          <%= if player.in_battle do %>
+            (currently in battle)
+          <% end %>
         <% end %>
       </li>
     <% end %>
