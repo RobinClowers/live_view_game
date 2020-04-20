@@ -2,3 +2,28 @@
 
 @import "./phoenix.css";
 @import "../../deps/phoenix_live_view/assets/css/live_view.css";
+
+
+.center {
+  text-align: center
+}
+
+.two-column {
+  flex-basis: 50%;
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.column {
+  width: 100%;
+  background: lightblue;
+}
+
+.column + .column {
+  margin-left: 1rem;
+}
+
+.battle {
+  height: 400px
+  /* <div class="battle" style="background: <%= Routes.static_path(@socket, "/images/battle-scene.png") %>"> */
+}
