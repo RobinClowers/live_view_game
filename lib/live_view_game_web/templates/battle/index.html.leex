@@ -5,6 +5,16 @@
   <% else %>
     <h5>You are being attacked by <%= @opponent.name %></h5>
   <% end %>
+  <div class="battle" style="background-image: url(<%= Routes.static_path(@socket, "/images/battle-scene.png") %>)">
+    <div class="battle-scene two-column">
+      <div class="column">
+        <%= character_image(@socket, @player.character, :left) %>
+      </div>
+      <div class="column">
+        <%= character_image(@socket, @opponent.character, :right) %>
+      </div>
+    </div>
+  </div>
   <div class="two-column">
     <div class="column">
       <h5><%= @player.name %> (You)</h5>

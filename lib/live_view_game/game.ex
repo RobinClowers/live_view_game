@@ -9,7 +9,13 @@ defmodule LiveGame.Game do
     player_battle_pids: %{}
   }
 
+  @character_descriptions %{
+    chimera: "A chimera",
+    gigas: "A floating humanoid"
+  }
+
   def initial_state, do: @initial_state
+  def character_descriptions, do: @character_descriptions
 
   def start_link(state) do
     Logger.info("Starting game server: #{inspect(state)}")

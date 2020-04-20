@@ -12,7 +12,6 @@ defmodule LiveGameWeb.Home do
   @topic "arena"
 
   def render(assigns) do
-    assigns = Map.put(assigns, :player_changeset, Player.new())
     Phoenix.View.render(LiveGameWeb.HomeView, "index.html", assigns)
   end
 
@@ -33,6 +32,7 @@ defmodule LiveGameWeb.Home do
 
     {:ok,
      assign(socket, %{
+       player_changeset: Player.new(),
        state: state,
        player: state.players[session["id"]],
        player_count: Presence.count_users(@topic),
@@ -101,7 +101,7 @@ defmodule LiveGameWeb.Home do
        )}
     else
       Logger.info("Player validation failed: #{inspect(player.errors)}")
-      {:noreply, assign(socket, changeset: player)}
+      {:noreply, assign(socket, player_changeset: %{player | action: :insert})}
     end
   end
 

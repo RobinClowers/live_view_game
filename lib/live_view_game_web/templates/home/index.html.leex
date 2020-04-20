@@ -12,9 +12,20 @@
 
   <%= unless @player do %>
   <%= f = form_for @player_changeset, "#", phx_submit: :new_player %>
-    <%= label f, :player, "Enter your name" %>
-    <%= text_input :player, :name, placeholder: "Enter your name" %>
+    <%= label f, :player, "Name" %>
+    <%= text_input f, :name, placeholder: "Enter your name" %>
+    <%= error_tag f, :name %>
     <%= hidden_input :player, :id, value: @user_id  %>
+    <%= label f, :player, "Choose your fighter" %>
+    <%= label do %>
+      <%= radio_button f, :character, "chimera" %>
+      <%= character_image @socket, :chimera %>
+    <% end %>
+    <%= label do %>
+      <%= radio_button f, :character, "gigas" %>
+      <%= character_image @socket, :gigas %>
+    <% end %>
+    <%= error_tag f, :character %>
     <%= submit "submit" %>
   <% end %>
 
