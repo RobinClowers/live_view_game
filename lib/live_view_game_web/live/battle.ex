@@ -56,6 +56,7 @@ defmodule LiveGameWeb.Battle do
       state: state,
       winner: battle.winner,
       player: battle.players[user_id],
+      my_turn: battle.active_player.id == user_id,
       opponent: opponent
     })
   end

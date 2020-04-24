@@ -26,7 +26,11 @@
     </div>
   </div>
   <%= if @winner == :none do %>
+    <%= if @my_turn do %>
     <button phx-click="attack">Attack</button>
+    <% else %>
+      <h5>It's <%= @opponent.name %>'s turn</h5>
+    <% end %>
   <% else %>
     <%= if @winner == @player do %>
       <h5>

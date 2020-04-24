@@ -10,7 +10,8 @@ defmodule LiveGame.Battle do
     %Battle{
       players: Map.take(players, [attacker_id, defender_id]),
       attacker_id: attacker_id,
-      winner: :none
+      winner: :none,
+      active_player: players[attacker_id]
     }
     |> Battle.start_link()
   end
@@ -29,7 +30,8 @@ defmodule LiveGame.Battle do
   end
 
   def handle_call({"attack", attacker, defender}, _from, state) do
-    Logger.info("Event attack: attacker: {inspect(attacker)}, defender: #{inspect(defender)}")
+    Logger.info("Event attack: attacker: #{inspect(attacker)}, defender: #{inspect(defender)}")
+    state = %{state | active_player: defender}
     state = damage_player(attacker, defender, round(5 * :rand.uniform()), state)
 
     {:reply, {:ok, state}, state}
