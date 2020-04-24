@@ -2,7 +2,6 @@ defmodule LiveGameWeb.Battle do
   use Phoenix.LiveView
   alias LiveGameWeb.Endpoint
   alias LiveGameWeb.Home
-  alias LiveGame.Presence
   alias LiveGame.Game
   alias LiveGame.Battle
   alias LiveGameWeb.Router.Helpers, as: Routes
@@ -23,8 +22,6 @@ defmodule LiveGameWeb.Battle do
     else
       {:ok, battle} = Battle.get_state(battle_pid)
       Logger.info("Loaded battle state: #{inspect(battle)}")
-      attacker = battle.players[attacker_id]
-      defender = battle.players[defender_id]
 
       topic = topic(battle_pid)
       Endpoint.subscribe(topic)
@@ -43,8 +40,7 @@ defmodule LiveGameWeb.Battle do
     end
   end
 
-  def destructure_assign(%{assigns: assigns} = socket, state, battle) do
-    %{user_id: user_id, attacker_id: attacker_id} = assigns
+  def destructure_assign(%{assigns: %{user_id: user_id}} = socket, state, battle) do
     Logger.info("player: #{inspect(battle.players[user_id])}")
 
     opponent =
@@ -72,18 +68,17 @@ defmodule LiveGameWeb.Battle do
     {:noreply, destructure_assign(socket, assigns.state, battle)}
   end
 
-  def handle_event("attack", %{"type" => type} = payload, %{assigns: assigns} = socket) do
+  def handle_event("attack", %{"type" => type} = payload, socket) do
     Logger.info("Event attack: #{inspect(payload)}")
 
-    %{assigns: %{player: player, opponent: opponent, state: state, battle_pid: battle_pid}} =
-      socket
+    %{assigns: %{state: state, battle_pid: battle_pid}} = socket
 
     {:ok, battle} = Battle.attack(battle_pid, type)
 
     {:noreply, destructure_assign(socket, state, battle)}
   end
 
-  def handle_event("defend", %{"type" => type} = payload, %{assigns: assigns} = socket) do
+  def handle_event("defend", %{"type" => type} = payload, socket) do
     Logger.info("Event defend: #{inspect(payload)}")
 
     %{assigns: %{player: player, state: state, battle_pid: battle_pid}} = socket

@@ -1,7 +1,6 @@
 defmodule LiveGameWeb.Home do
   use Phoenix.LiveView
   alias LiveGameWeb.Endpoint
-  alias LiveGameWeb.Router
   alias LiveGameWeb.Battle
   alias LiveGame.Presence
   alias LiveGame.Game
@@ -41,6 +40,10 @@ defmodule LiveGameWeb.Home do
   end
 
   def topic, do: @topic
+
+  def exit_battle(user_id) do
+    GenServer.cast("exit_battle", user_id)
+  end
 
   # Example payload
   # %{
@@ -83,7 +86,7 @@ defmodule LiveGameWeb.Home do
     end
   end
 
-  def handle_event("new_player", payload, %{assigns: %{state: state}} = socket) do
+  def handle_event("new_player", payload, socket) do
     Logger.info("Command: new_player, payload: #{inspect(payload)}")
     player = Player.new(payload["player"])
 
@@ -122,11 +125,7 @@ defmodule LiveGameWeb.Home do
      )}
   end
 
-  def exit_battle(user_id) do
-    GenServer.cast("exit_battle", user_id)
-  end
-
-  def handle_info("exit_battle", payload, socket) do
+  def handle_info("exit_battle", _payload, socket) do
     {:noreply, socket}
   end
 end

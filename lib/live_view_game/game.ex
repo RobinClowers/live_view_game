@@ -29,22 +29,22 @@ defmodule LiveGame.Game do
     GenServer.call(CurrentGame, "get_state")
   end
 
+  def add_player(player) do
+    GenServer.call(CurrentGame, {"add_player", player})
+  end
+
+  def start_battle(attacker_id, defender_id) do
+    GenServer.call(CurrentGame, {"start_battle", attacker_id, defender_id})
+  end
+
+  def exit_battle(user_id) do
+    Logger.info("Event exit_battle: #{user_id}")
+    GenServer.call(CurrentGame, {"exit_battle", user_id})
+  end
+
   def handle_call("get_state", _from, state) do
     Logger.info("Event get_state: #{inspect(state)}")
     {:reply, {:ok, state}, state}
-  end
-
-  def update_state(state) do
-    GenServer.call(CurrentGame, {"update_state", state})
-  end
-
-  def handle_call({"update_state", new_state}, _from, _state) do
-    Logger.info("Event update_state: #{inspect(new_state)}")
-    {:reply, {:ok, new_state}, new_state}
-  end
-
-  def add_player(player) do
-    GenServer.call(CurrentGame, {"add_player", player})
   end
 
   def handle_call({"add_player", %Player{} = player}, _from, state) do
@@ -52,10 +52,6 @@ defmodule LiveGame.Game do
     players = Map.put(state.players, player.id, player)
     state = %{state | players: players}
     {:reply, {:ok, state}, state}
-  end
-
-  def start_battle(attacker_id, defender_id) do
-    GenServer.call(CurrentGame, {"start_battle", attacker_id, defender_id})
   end
 
   def handle_call(
@@ -73,11 +69,6 @@ defmodule LiveGame.Game do
     state = update_in(state.players[defender_id].in_battle, fn _ -> true end)
     state = %{state | player_battle_pids: player_battle_pids}
     {:reply, {:ok, state}, state}
-  end
-
-  def exit_battle(user_id) do
-    Logger.info("Event exit_battle: #{user_id}")
-    GenServer.call(CurrentGame, {"exit_battle", user_id})
   end
 
   def handle_call({"exit_battle", user_id}, _from, state) do

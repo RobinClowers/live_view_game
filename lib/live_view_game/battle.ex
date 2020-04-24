@@ -34,22 +34,8 @@ defmodule LiveGame.Battle do
     GenServer.call(pid, {"attack", type})
   end
 
-  def handle_call({"attack", type}, _from, state) do
-    Logger.info("Event attack: type: #{type}")
-
-    state = %{state | attack_type: type} |> resolve_attack
-    {:reply, {:ok, state}, state}
-  end
-
   def defend(pid, type, player) do
     GenServer.call(pid, {"defend", type, player})
-  end
-
-  def handle_call({"defend", type, player}, _from, state) do
-    Logger.info("Event defend: type: #{type}, player: #{inspect(player)}")
-
-    state = %{state | defense_type: type} |> resolve_attack
-    {:reply, {:ok, state}, state}
   end
 
   def resolve_attack(%{attack_type: nil} = state), do: state
@@ -104,6 +90,20 @@ defmodule LiveGame.Battle do
 
   def get_state(pid) do
     GenServer.call(pid, "get_state")
+  end
+
+  def handle_call({"attack", type}, _from, state) do
+    Logger.info("Event attack: type: #{type}")
+
+    state = %{state | attack_type: type} |> resolve_attack
+    {:reply, {:ok, state}, state}
+  end
+
+  def handle_call({"defend", type, player}, _from, state) do
+    Logger.info("Event defend: type: #{type}, player: #{inspect(player)}")
+
+    state = %{state | defense_type: type} |> resolve_attack
+    {:reply, {:ok, state}, state}
   end
 
   def handle_call("get_state", _from, state) do

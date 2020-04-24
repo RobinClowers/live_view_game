@@ -48,14 +48,7 @@ defmodule LiveGame.Attack do
     %{data | multiplier: multiplier(attack, defense)}
   end
 
-  defp apply_damage(
-         %Attack{
-           attack: attack,
-           defense: defense,
-           multiplier: multiplier,
-           base_damage: base_damage
-         } = data
-       ) do
+  defp apply_damage(%Attack{multiplier: multiplier, base_damage: base_damage} = data) do
     %{data | total_damage: base_damage * multiplier}
   end
 end
