@@ -4,8 +4,10 @@ defmodule LiveGame.Battle do
   alias LiveGame.Game
   alias LiveGame.Battle
 
+  defstruct players: %{}, attacker_id: nil, winner: :none, active_player: nil
+
   def start(players, attacker_id, defender_id) do
-    %{
+    %Battle{
       players: Map.take(players, [attacker_id, defender_id]),
       attacker_id: attacker_id,
       winner: :none

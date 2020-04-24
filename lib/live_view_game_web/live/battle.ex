@@ -54,7 +54,7 @@ defmodule LiveGameWeb.Battle do
 
     assign(socket, %{
       state: state,
-      winner: battle[:winner],
+      winner: battle.winner,
       player: battle.players[user_id],
       opponent: opponent
     })

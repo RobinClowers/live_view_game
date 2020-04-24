@@ -1,20 +1,18 @@
 defmodule LiveGame.Game do
   use GenServer
   require Logger
+  alias LiveGame.Game
   alias LiveGame.Battle
   alias LiveGame.Player
 
-  @initial_state %{
-    players: %{},
-    player_battle_pids: %{}
-  }
+  defstruct players: %{}, player_battle_pids: %{}
 
   @character_descriptions %{
     chimera: "A chimera",
     gigas: "A floating humanoid"
   }
 
-  def initial_state, do: @initial_state
+  def initial_state, do: %Game{}
   def character_descriptions, do: @character_descriptions
 
   def start_link(state) do
