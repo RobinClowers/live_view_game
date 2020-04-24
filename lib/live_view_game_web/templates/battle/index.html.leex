@@ -27,15 +27,23 @@
   </div>
   <%= if @winner_id == :none do %>
     <%= if @my_turn do %>
-      <h5>It's your turn, choose an attack</h5>
-      <button phx-click="attack" phx-value-type="fire">Fire</button>
-      <button phx-click="attack" phx-value-type="water">Water</button>
-      <button phx-click="attack" phx-value-type="life">Life</button>
+      <%= if @attack_type do %>
+        <h5>You've selected to attack with <strong><%= @attack_type %></strong>, waiting for opponent...</h5>
+      <% else %>
+        <h5>It's your turn, choose an attack</h5>
+        <button phx-click="attack" phx-value-type="fire">Fire</button>
+        <button phx-click="attack" phx-value-type="water">Water</button>
+        <button phx-click="attack" phx-value-type="life">Life</button>
+      <% end %>
     <% else %>
-      <h5>It's <%= @opponent.name %>'s turn, choose a defense</h5>
-      <button phx-click="defend" phx-value-type="fire">Fire</button>
-      <button phx-click="defend" phx-value-type="water">Water</button>
-      <button phx-click="defend" phx-value-type="life">Life</button>
+      <%= if @defense_type do %>
+        <h5>You've selected to defend with <strong><%= @defense_type %></strong>, waiting for opponent...</h5>
+      <% else %>
+        <h5>It's <%= @opponent.name %>'s turn, choose a defense</h5>
+        <button phx-click="defend" phx-value-type="fire">Fire</button>
+        <button phx-click="defend" phx-value-type="water">Water</button>
+        <button phx-click="defend" phx-value-type="life">Life</button>
+      <% end %>
     <% end %>
   <% else %>
     <%= if @winner_id == @user_id do %>
@@ -49,4 +57,9 @@
     <% end %>
     <button phx-click="exit">Leave Battle</button>
   <% end %>
+  <div class="log">
+    <%= for msg <- @log do %>
+      <%= msg %><br>
+    <% end %>
+  </div>
 </main>

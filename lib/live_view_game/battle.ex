@@ -1,9 +1,11 @@
 defmodule LiveGame.Battle do
   use GenServer
   require Logger
+  alias LiveGame.Attack
   alias LiveGame.Battle
 
   defstruct players: %{},
+            log: [],
             attacker_id: nil,
             winner_id: :none,
             active_player_id: nil,
@@ -64,35 +66,30 @@ defmodule LiveGame.Battle do
       ) do
     attacker = state.players[attacker_id]
     defender = defending_player(state)
-    hp = defender.hp - calculate_damage(round(5 * :rand.uniform()), attack, defense)
+    attack = Attack.execute(attack, defense, 4 + round(4 * :rand.uniform()))
+    hp = defender.hp - attack.total_damage
     defender = %{defender | hp: hp}
+
+    log = Attack.log(attack, attacker.name, defender.name) ++ state.log
 
     if hp <= 0 do
       %{
         state
         | winner_id: attacker_id,
+          log: ["#{attacker.name} is the winner!" | log],
           players: %{attacker.id => attacker, defender.id => defender}
       }
     else
       %{
         state
         | players: %{attacker.id => attacker, defender.id => defender},
+          log: log,
           active_player_id: defender.id,
           defense_type: nil,
           attack_type: nil
       }
     end
   end
-
-  def calculate_damage(_base_damage, "fire", "water"), do: 0
-  def calculate_damage(base_damage, "fire", "life"), do: base_damage * 2
-  def calculate_damage(base_damage, "fire", "fire"), do: base_damage
-  def calculate_damage(_base_damage, "water", "life"), do: 0
-  def calculate_damage(base_damage, "water", "fire"), do: base_damage * 2
-  def calculate_damage(base_damage, "water", "water"), do: base_damage
-  def calculate_damage(_base_damage, "life", "fire"), do: 0
-  def calculate_damage(base_damage, "life", "water"), do: base_damage * 2
-  def calculate_damage(base_damage, "life", "life"), do: base_damage
 
   def defending_player(%{active_player_id: active, players: players}) do
     players

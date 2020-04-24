@@ -54,9 +54,12 @@ defmodule LiveGameWeb.Battle do
 
     assign(socket, %{
       state: state,
+      log: battle.log,
       winner_id: battle.winner_id,
       player: battle.players[user_id],
       my_turn: battle.active_player_id == user_id,
+      defense_type: battle.defense_type,
+      attack_type: battle.attack_type,
       opponent: opponent
     })
   end
