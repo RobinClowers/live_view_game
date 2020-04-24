@@ -25,14 +25,20 @@
       <p>HP <%= @opponent.hp %></p>
     </div>
   </div>
-  <%= if @winner == :none do %>
+  <%= if @winner_id == :none do %>
     <%= if @my_turn do %>
-    <button phx-click="attack">Attack</button>
+      <h5>It's your turn, choose an attack</h5>
+      <button phx-click="attack" phx-value-type="fire">Fire</button>
+      <button phx-click="attack" phx-value-type="water">Water</button>
+      <button phx-click="attack" phx-value-type="life">Life</button>
     <% else %>
-      <h5>It's <%= @opponent.name %>'s turn</h5>
+      <h5>It's <%= @opponent.name %>'s turn, choose a defense</h5>
+      <button phx-click="defend" phx-value-type="fire">Fire</button>
+      <button phx-click="defend" phx-value-type="water">Water</button>
+      <button phx-click="defend" phx-value-type="life">Life</button>
     <% end %>
   <% else %>
-    <%= if @winner == @player do %>
+    <%= if @winner_id == @user_id do %>
       <h5>
         You Won!
       </h5>

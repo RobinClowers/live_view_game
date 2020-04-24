@@ -54,9 +54,9 @@ defmodule LiveGameWeb.Battle do
 
     assign(socket, %{
       state: state,
-      winner: battle.winner,
+      winner_id: battle.winner_id,
       player: battle.players[user_id],
-      my_turn: battle.active_player.id == user_id,
+      my_turn: battle.active_player_id == user_id,
       opponent: opponent
     })
   end
@@ -69,15 +69,23 @@ defmodule LiveGameWeb.Battle do
     {:noreply, destructure_assign(socket, assigns.state, battle)}
   end
 
-  def handle_event(
-        "attack",
-        payload,
-        %{assigns: %{state: state, battle_pid: battle_pid}} = socket
-      ) do
+  def handle_event("attack", %{"type" => type} = payload, %{assigns: assigns} = socket) do
     Logger.info("Event attack: #{inspect(payload)}")
-    %{assigns: %{player: player, opponent: opponent, battle_pid: battle_pid}} = socket
 
-    {:ok, battle} = Battle.attack(battle_pid, player, opponent)
+    %{assigns: %{player: player, opponent: opponent, state: state, battle_pid: battle_pid}} =
+      socket
+
+    {:ok, battle} = Battle.attack(battle_pid, type)
+
+    {:noreply, destructure_assign(socket, state, battle)}
+  end
+
+  def handle_event("defend", %{"type" => type} = payload, %{assigns: assigns} = socket) do
+    Logger.info("Event defend: #{inspect(payload)}")
+
+    %{assigns: %{player: player, state: state, battle_pid: battle_pid}} = socket
+
+    {:ok, battle} = Battle.defend(battle_pid, type, player)
 
     {:noreply, destructure_assign(socket, state, battle)}
   end
