@@ -34,7 +34,7 @@ defmodule LiveGameWeb.Home do
        player_changeset: Player.new(),
        state: state,
        player: state.players[session["id"]],
-       player_count: Presence.count_users(@topic),
+       user_count: Presence.count_users(@topic),
        user_id: session["id"]
      })}
   end
@@ -63,7 +63,7 @@ defmodule LiveGameWeb.Home do
     {:noreply,
      assign(socket, %{
        state: assigns.state,
-       player_count: Presence.count_users(@topic)
+       user_count: Presence.count_users(@topic)
      })}
   end
 

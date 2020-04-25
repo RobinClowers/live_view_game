@@ -1,54 +1,61 @@
 <main>
-  <h1>Welcome to the areana</h1>
-  <p>There are currently <%= Enum.count(@state.players) %> players.
+  <h1>Welcome to the arena</h1>
+  <p>There are currently <%= @user_count %> players online.
   <p>
-    You are
     <%= if @player do %>
-      <strong><%= @player.name %></strong>
+      <strong><%= @player.name %></strong>, select and opponent from the list below.
     <% else %>
-      user <%= @user_id %>
+      Enter your name and select a character to enter the arena.
     <% end %>
   </p>
 
-  <%= unless @player do %>
-  <%= f = form_for @player_changeset, "#", phx_submit: :new_player %>
+  <%= if @player do %>
+    <%= if Enum.count(@state.players) > 0 do %>
+      <div>
+        <h5 class="center">Current players</h5>
+        <ul>
+          <%= for {_id, player} <- @state.players do %>
+            <li class="two-column">
+              <div class="column center">
+                <%= player.name %>
+              </div>
+              <div class="center column">
+                <%= if @state.players[@user_id] do %>
+                  <%= if player.id == @user_id do %>
+                    (you)
+                  <% else %>
+                    <%= unless player.in_battle do %>
+                      <button phx-click="start_battle" phx-value-id="<%=player.id %>">Attack</button>
+                    <% end %>
+                  <% end %>
+                  <%= if player.in_battle do %>
+                    (currently in battle)
+                  <% end %>
+                <% end %>
+              </div>
+            </li>
+          <% end %>
+        <ul>
+      </div>
+    <% end %>
+  <% else %>
+    <%= f = form_for @player_changeset, "#", phx_submit: :new_player %>
     <%= label f, :player, "Name" %>
     <%= text_input f, :name, placeholder: "Enter your name" %>
     <%= error_tag f, :name %>
     <%= hidden_input :player, :id, value: @user_id  %>
     <%= label f, :player, "Choose your fighter" %>
-    <%= label do %>
-      <%= radio_button f, :character, "chimera" %>
-      <%= character_image @socket, :chimera %>
-    <% end %>
-    <%= label do %>
-      <%= radio_button f, :character, "gigas" %>
-      <%= character_image @socket, :gigas %>
-    <% end %>
+    <div class="two-column column">
+      <%= label class: "column center" do %>
+        <%= character_image @socket, :chimera %>
+        <%= radio_button f, :character, "chimera" %>
+      <% end %>
+      <%= label class: "column center" do %>
+        <%= character_image @socket, :gigas %>
+        <%= radio_button f, :character, "gigas" %>
+        <% end %>
+    </div>
     <%= error_tag f, :character %>
     <%= submit "submit" %>
   <% end %>
-
-  <div>
-    <h5>Current players</h5>
-    <ul>
-    <%= for {_id, player} <- @state.players do %>
-      <li>
-        <%= player.name %>
-        <%= if @state.players[@user_id] do %>
-          <%= if player.id == @user_id do %>
-            (you)
-          <% else %>
-            <%= unless player.in_battle do %>
-              <button phx-click="start_battle" phx-value-id="<%=player.id %>">Attack</button>
-            <% end %>
-          <% end %>
-          <%= if player.in_battle do %>
-            (currently in battle)
-          <% end %>
-        <% end %>
-      </li>
-    <% end %>
-    <ul>
-  </div>
 </main>
